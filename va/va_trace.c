@@ -6494,11 +6494,12 @@ va_TraceProcFilterParameterBuffer(
         }
 
         base_filter = NULL;
-        vaMapBuffer(dpy, filters[i], (void **)&base_filter);
+        if (vaMapBuffer(dpy, filters[i], (void **)&base_filter) != VA_STATUS_SUCCESS)
+            continue;
 
         if (base_filter == NULL) {
             vaUnmapBuffer(dpy, filters[i]);
-            return;
+            continue;
         }
 
         switch (base_filter->type) {
@@ -6519,7 +6520,8 @@ va_TraceProcFilterParameterBuffer(
             break;
         }
 
-        vaUnmapBuffer(dpy, filters[i]);
+        if (vaUnmapBuffer(dpy, filters[i]) != VA_STATUS_SUCCESS)
+            continue;
     }
 }
 
@@ -6667,7 +6669,8 @@ void va_TraceRenderPicture(
         va_TraceMsg(trace_ctx, "\t  size = %d\n", size);
         va_TraceMsg(trace_ctx, "\t  num_elements = %d\n", num_elements);
 
-        vaMapBuffer(dpy, buffers[i], (void **)&pbuf);
+        if (vaMapBuffer(dpy, buffers[i], (void **)&pbuf) != VA_STATUS_SUCCESS)
+            continue;
         if (pbuf == NULL)
             continue;
 
@@ -6785,7 +6788,8 @@ void va_TraceRenderPicture(
             break;
         }
 
-        vaUnmapBuffer(dpy, buffers[i]);
+        if (vaUnmapBuffer(dpy, buffers[i]) != VA_STATUS_SUCCESS)
+            continue;
     }
 
     va_TraceMsg(trace_ctx, NULL);
@@ -7157,7 +7161,8 @@ void va_TraceEventBuffers(
         unsigned int total = 0;
         int data[3];
         vaBufferInfo(dpy, context, buffers[i], &type, &size, &num);
-        vaMapBuffer(dpy, buffers[i], (void **)&pbuf);
+        if (vaMapBuffer(dpy, buffers[i], (void **)&pbuf) != VA_STATUS_SUCCESS)
+            continue;
         if (pbuf == NULL)
             continue;
         total = size * num;
