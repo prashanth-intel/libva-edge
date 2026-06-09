@@ -1087,8 +1087,8 @@ va_impl_query_surface_attributes(
 
         // Check for duplicates
         int is_duplicate = 0;
-        for (i = n - 1; i >= 0 && !is_duplicate; i--) {
-            const VASurfaceAttrib * const prev_attrib = &attribs[i];
+        for (unsigned int prev = n; prev-- > 0 && !is_duplicate; ) {
+            const VASurfaceAttrib * const prev_attrib = &attribs[prev];
             if (prev_attrib->type != VASurfaceAttribPixelFormat)
                 break;
             is_duplicate = prev_attrib->value.value.i == attrib->value.value.i;
