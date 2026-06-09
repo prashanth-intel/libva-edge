@@ -408,9 +408,11 @@ static VAStatus va_openDriver(VADisplay dpy, char *driver_name)
         handle = dlopen(driver_path, RTLD_NOW | RTLD_GLOBAL);
 #endif
         if (!handle) {
-            /* Don't give errors for non-existing files */
-            if (0 == access(driver_path, F_OK))
-                va_errorMessage(dpy, "dlopen of %s failed: %s\n", driver_path, dlerror());
+            const char *error = dlerror();
+            /* Avoid TOCTOU by relying on dlopen() diagnostics instead of access(). */
+            if (!error || !strstr(error, "No such file"))
+                va_errorMessage(dpy, "dlopen of %s failed: %s\n", driver_path,
+                                error ? error : "unknown error");
         } else {
             VADriverInit init_func = NULL;
             char init_func_s[256];
